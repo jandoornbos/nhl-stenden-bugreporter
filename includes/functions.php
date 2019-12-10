@@ -5,7 +5,17 @@ require_once('database.php');
 /**
  * A global array with messages to display. This could contain error or success messages.
  */
-$messages = [];
+$messages = $_SESSION;
+if (isset($messages["shown"]))
+{
+    unset($_SESSION["success"]);
+    unset($_SESSION["error"]);
+}
+
+function setMessagesShown(bool $shown)
+{
+    $_SESSION["shown"] = $shown;
+}
 
 /**
  * Get all the bugs that are in the database.
@@ -31,7 +41,7 @@ function getBug(int $id)
     global $db;
 
     $stmt = mysqli_prepare($db, "SELECT * FROM `bug` WHERE `id` = ?");
-    if (!mysqli_stmt_bind_param($stmt, 'i', $id))
+    if (!mysqli_stmt_bind_param($stmt, "i", $id))
     {
         die("Binding went wrong.");
     }
@@ -51,6 +61,28 @@ function getBug(int $id)
     mysqli_stmt_close($stmt);
 
     return $array;
+}
+
+/**
+ * Check if a bug exists in the database.
+ *
+ * @param int $id The id of the bug.
+ * @return bool True if the bug exists. False otherwise.
+ */
+function doesBugExist(int $id)
+{
+    global $db;
+
+    $stmt = mysqli_prepare($db, "SELECT COUNT(*) FROM `bug` WHERE `id` = ?");
+    if (!mysqli_stmt_bind_param($stmt, "i", $id))
+    {
+        die("Binding went wrong.");
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_row($result)[0] > 0;
 }
 
 /**
@@ -95,10 +127,11 @@ function updateBug(int $id, array $data)
 function addBug(array $data)
 {
     global $db;
+    global $messages;
 
     if (null !== validateDataArray($data))
     {
-        $_SESSION["error"] = validateDataArray($data);
+        $messages["error"] = validateDataArray($data);
         return false;
     }
 
@@ -116,6 +149,63 @@ function addBug(array $data)
     header("Location: index.php");
 
     return true;
+}
+
+/**
+ * Remove a certain bug. After a bug has been removed, user will be redirected to index page.
+ *
+ * @param int $id The id of the bug.
+ */
+function removeBug(int $id)
+{
+    global $db;
+
+    if (!doesBugExist($id))
+    {
+        $_SESSION["error"] = "Bug #" . $id . " does not exist.";
+        header("Location: index.php");
+        return;
+    }
+
+    $stmt = mysqli_prepare($db, "DELETE FROM `bug` WHERE `id` = ?");
+    if (!mysqli_stmt_bind_param($stmt, "i", $id))
+    {
+        die("Binding went wrong.");
+    }
+
+    if (!mysqli_stmt_execute($stmt))
+    {
+        $_SESSION["error"] = "Bug #" . $id . " could not be removed.";
+    }
+
+    mysqli_stmt_close($stmt);
+
+    $_SESSION["success"] = "Bug #" . $id . " has been removed.";
+
+    header("Location: index.php");
+}
+
+/**
+ * Set the bug to solved. After bug is set to solved, user will be redirected to index page.
+ *
+ * @param int $id The id of the bug.
+ */
+function setSolved(int $id)
+{
+    global $db;
+
+    $stmt = mysqli_prepare($db, "UPDATE `bug` SET `solved` = 1 WHERE `id` = ?");
+    if (!mysqli_stmt_bind_param($stmt, "i", $id))
+    {
+        die("Binding went wrong.");
+    }
+
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    $_SESSION["success"] = "Bug #" . $id . " has been solved.";
+
+    header("Location: index.php");
 }
 
 /**
@@ -154,11 +244,28 @@ if (isset($_POST["action"]))
     {
         // Update bug
         updateBug($_POST["id"], $_POST);
+        return;
     }
 
     if ($_POST["action"] === "add")
     {
         // Create bug
         addBug($_POST);
+        return;
+    }
+}
+
+if (isset($_GET["a"]))
+{
+    if ($_GET["a"] === "remove" && isset($_GET["id"]))
+    {
+        removeBug($_GET["id"]);
+        return;
+    }
+
+    if ($_GET["a"] === "solve" && isset($_GET["id"]))
+    {
+        setSolved($_GET["id"]);
+        return;
     }
 }

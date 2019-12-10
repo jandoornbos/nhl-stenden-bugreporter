@@ -14,6 +14,12 @@ if (isset($_GET["id"]) && $_GET["id"] > 0)
         die();
     }
 }
+else
+{
+    // It's a new submission, and something went wrong, so put the $_POST data into the bug variable.
+    // This way the fields are automatically filled again.
+    $bug = $_POST;
+}
 ?>
 <h2 class="mb-3"><a href="index.php">&leftarrow;</a> <?php echo $pageType ?> bug #<?php echo $bug["id"]; ?></h2>
 <div class="card">
@@ -46,7 +52,7 @@ if (isset($_GET["id"]) && $_GET["id"] > 0)
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label" for="solution">Solution</label>
                 <div class="col-sm-10">
-                    <textarea class="form-control" name="solution" id="solution"><?php echo $bug["proposedSolution"]; ?></textarea>
+                    <textarea class="form-control" name="proposedSolution" id="solution"><?php echo $bug["proposedSolution"]; ?></textarea>
                 </div>
             </div>
             <input type="hidden" name="id" value="<?php echo $bug["id"]; ?>">
