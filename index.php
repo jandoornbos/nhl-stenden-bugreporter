@@ -18,6 +18,9 @@ require_once('includes/functions.php');
     <body>
         <nav class="navbar navbar-dark bg-dark">
             <span class="navbar-brand mb-0 h1">Bugreporter</span>
+            <?php if (isUserLoggedIn()): ?>
+            <span class="navbar-text">Logged in as <?php echo getLoggedInUser()["email"]; ?>. <a href="index.php?a=logout">Logout</a></span>
+            <?php endif; ?>
         </nav>
         <div class="container mt-3">
             <?php

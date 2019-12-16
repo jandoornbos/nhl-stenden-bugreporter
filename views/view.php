@@ -1,4 +1,6 @@
 <?php
+requiresLogin();
+
 $bug = getBug($_GET["id"]);
 if (null === $bug)
 {
