@@ -6,8 +6,7 @@ require_once('database.php');
  * A global array with messages to display. This could contain error or success messages.
  */
 $messages = $_SESSION;
-if (isset($messages["shown"]))
-{
+if (isset($messages["shown"])) {
     unset($_SESSION["success"]);
     unset($_SESSION["error"]);
 }
@@ -30,8 +29,7 @@ function login(string $username, string $password): void
     $stmt = mysqli_prepare($db, "SELECT * FROM `user` WHERE `email` = ?");
     if (!mysqli_stmt_bind_param($stmt, "s", $username)
         || !mysqli_stmt_execute($stmt)
-        || !$result = mysqli_stmt_get_result($stmt))
-    {
+        || !$result = mysqli_stmt_get_result($stmt)) {
         die(mysqli_error($db));
     }
 
@@ -40,16 +38,14 @@ function login(string $username, string $password): void
     mysqli_stmt_free_result($stmt);
     mysqli_stmt_close($stmt);
 
-    if ($amountOfResults <= 0)
-    {
+    if ($amountOfResults <= 0) {
         $_SESSION["error"] = "User could not be found.";
         header("Location: index.php?p=login");
         return;
     }
 
     $array = mysqli_fetch_assoc($result);
-    if (!password_verify($password, $array["password"]))
-    {
+    if (!password_verify($password, $array["password"])) {
         $_SESSION["error"] = "Password is incorrect.";
         header("Location: index.php?p=login");
         return;
@@ -71,21 +67,17 @@ function createSession(int $userId): ?string
 {
     global $db;
 
-    try
-    {
+    try {
         $sessionHash = bin2hex(random_bytes(100));
 
         $stmt = mysqli_prepare($db, "INSERT INTO `session` (`userid`, `sessionhash`) VALUES (?, ?)");
         if (!mysqli_stmt_bind_param($stmt, "ss", $userId, $sessionHash)
-            || !mysqli_stmt_execute($stmt))
-        {
+            || !mysqli_stmt_execute($stmt)) {
             die(mysqli_error($db));
         }
 
         return $sessionHash;
-    }
-    catch (Exception $e)
-    {
+    } catch (Exception $e) {
         return null;
     }
 }
@@ -99,19 +91,16 @@ function getLoggedInUser(): ?array
 {
     global $db;
 
-    if (isset($_SESSION["X-AUTH-TOKEN"]))
-    {
+    if (isset($_SESSION["X-AUTH-TOKEN"])) {
         $stmt = mysqli_prepare($db, "SELECT (`user`.`email`) FROM `session` JOIN `user` ON `session`.`userid` = `user`.`id` WHERE `sessionhash` = ?");
         if (!mysqli_stmt_bind_param($stmt, "s", $_SESSION["X-AUTH-TOKEN"])
             || !mysqli_stmt_execute($stmt)
-            || !$result = mysqli_stmt_get_result($stmt))
-        {
+            || !$result = mysqli_stmt_get_result($stmt)) {
             die(mysqli_error($db));
         }
 
         mysqli_stmt_store_result($stmt);
-        if (mysqli_num_rows($result) > 0)
-        {
+        if (mysqli_num_rows($result) > 0) {
             return mysqli_fetch_assoc($result);
         }
     }
@@ -134,8 +123,7 @@ function isUserLoggedIn(): bool
  */
 function requiresLogin(): void
 {
-    if (!isset($_SESSION["X-AUTH-TOKEN"]))
-    {
+    if (!isset($_SESSION["X-AUTH-TOKEN"])) {
         include("./views/401.php");
         die();
     }
@@ -152,8 +140,7 @@ function logout(): void
 
     $stmt = mysqli_prepare($db, "DELETE FROM `session` WHERE `sessionhash` = ?");
     if (!mysqli_stmt_bind_param($stmt, "s", $sessionHash)
-        || !mysqli_stmt_execute($stmt))
-    {
+        || !mysqli_stmt_execute($stmt)) {
         die(mysqli_error($db));
     }
 
@@ -176,8 +163,7 @@ function register(string $username, string $password): void
 
     $stmt = mysqli_prepare($db, "INSERT INTO `user` (`email`, `password`) VALUES (?, ?)");
     if (!mysqli_stmt_bind_param($stmt, "ss", $username, $password)
-        || !mysqli_stmt_execute($stmt))
-    {
+        || !mysqli_stmt_execute($stmt)) {
         die(mysqli_error($db));
     }
 
@@ -208,19 +194,16 @@ function getBug(int $id): ?array
     global $db;
 
     $stmt = mysqli_prepare($db, "SELECT * FROM `bug` WHERE `id` = ?");
-    if (!mysqli_stmt_bind_param($stmt, "i", $id))
-    {
+    if (!mysqli_stmt_bind_param($stmt, "i", $id)) {
         die("Binding went wrong.");
     }
 
-    if (!mysqli_stmt_execute($stmt))
-    {
+    if (!mysqli_stmt_execute($stmt)) {
         echo mysqli_error($db);
         die('Getting results went wrong.');
     }
 
-    if (!$result = mysqli_stmt_get_result($stmt))
-    {
+    if (!$result = mysqli_stmt_get_result($stmt)) {
         die('Whoops');
     }
 
@@ -241,8 +224,7 @@ function doesBugExist(int $id): bool
     global $db;
 
     $stmt = mysqli_prepare($db, "SELECT COUNT(*) FROM `bug` WHERE `id` = ?");
-    if (!mysqli_stmt_bind_param($stmt, "i", $id))
-    {
+    if (!mysqli_stmt_bind_param($stmt, "i", $id)) {
         die("Binding went wrong.");
     }
 
@@ -263,15 +245,13 @@ function updateBug(int $id, array $data): bool
 {
     global $db;
 
-    if (null !== validateDataArray($data))
-    {
+    if (null !== validateDataArray($data)) {
         $_SESSION["error"] = validateDataArray($data);
         return false;
     }
 
     $stmt = mysqli_prepare($db, "UPDATE `bug` SET `productName` = ?, `productVersion` = ?, `hardware` = ?, `frequency` = ?, `proposedSolution` = ? WHERE `id` = ?");
-    if (!mysqli_stmt_bind_param($stmt, "sdsssi", $data['productName'], $data["productVersion"], $data["hardware"], $data["frequency"], $data["proposedSolution"], $id))
-    {
+    if (!mysqli_stmt_bind_param($stmt, "sdsssi", $data['productName'], $data["productVersion"], $data["hardware"], $data["frequency"], $data["proposedSolution"], $id)) {
         die("Binding went wrong.");
     }
 
@@ -296,15 +276,13 @@ function addBug(array $data): bool
     global $db;
     global $messages;
 
-    if (null !== validateDataArray($data))
-    {
+    if (null !== validateDataArray($data)) {
         $messages["error"] = validateDataArray($data);
         return false;
     }
 
     $stmt = mysqli_prepare($db, "INSERT INTO `bug` (`productName`, `productVersion`, `hardware`, `frequency`, `proposedSolution`) VALUES (?,?,?,?,?)");
-    if (!mysqli_stmt_bind_param($stmt, "sdsss", $data["productName"], $data["productVersion"], $data["hardware"], $data["frequency"], $data["proposedSolution"]))
-    {
+    if (!mysqli_stmt_bind_param($stmt, "sdsss", $data["productName"], $data["productVersion"], $data["hardware"], $data["frequency"], $data["proposedSolution"])) {
         die("Binding went wrong.");
     }
 
@@ -327,21 +305,18 @@ function removeBug(int $id): void
 {
     global $db;
 
-    if (!doesBugExist($id))
-    {
+    if (!doesBugExist($id)) {
         $_SESSION["error"] = "Bug #" . $id . " does not exist.";
         header("Location: index.php");
         return;
     }
 
     $stmt = mysqli_prepare($db, "DELETE FROM `bug` WHERE `id` = ?");
-    if (!mysqli_stmt_bind_param($stmt, "i", $id))
-    {
+    if (!mysqli_stmt_bind_param($stmt, "i", $id)) {
         die("Binding went wrong.");
     }
 
-    if (!mysqli_stmt_execute($stmt))
-    {
+    if (!mysqli_stmt_execute($stmt)) {
         $_SESSION["error"] = "Bug #" . $id . " could not be removed.";
     }
 
@@ -362,8 +337,7 @@ function setSolved(int $id): void
     global $db;
 
     $stmt = mysqli_prepare($db, "UPDATE `bug` SET `solved` = 1 WHERE `id` = ?");
-    if (!mysqli_stmt_bind_param($stmt, "i", $id))
-    {
+    if (!mysqli_stmt_bind_param($stmt, "i", $id)) {
         die("Binding went wrong.");
     }
 
@@ -393,10 +367,8 @@ function validateDataArray(array $data): ?string
 
     $errorMessages = [];
 
-    foreach ($fieldsToCheck as $field => $name)
-    {
-        if (!isset($data[$field]) || empty($data[$field]))
-        {
+    foreach ($fieldsToCheck as $field => $name) {
+        if (!isset($data[$field]) || empty($data[$field])) {
             $errorMessages[] = "The field '" . $name . "' is empty.";
         }
     }
@@ -405,10 +377,8 @@ function validateDataArray(array $data): ?string
 }
 
 // Submit handling
-if (isset($_POST["action"]))
-{
-    switch ($_POST["action"])
-    {
+if (isset($_POST["action"])) {
+    switch ($_POST["action"]) {
         case "update":
             updateBug($_POST["id"], $_POST);
             return;
@@ -424,10 +394,8 @@ if (isset($_POST["action"]))
     }
 }
 
-if (isset($_GET["a"]))
-{
-    switch ($_GET["a"])
-    {
+if (isset($_GET["a"])) {
+    switch ($_GET["a"]) {
         case "remove":
             removeBug($_GET["id"]);
             return;
