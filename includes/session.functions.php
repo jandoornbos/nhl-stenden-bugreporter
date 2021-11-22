@@ -1,5 +1,10 @@
 <?php
 
+function getMessagesShown(): bool
+{
+    return isset($_SESSION[MESSAGES_KEY]["shown"]) ?? false;
+}
+
 function setMessagesShown(bool $shown): void
 {
     $_SESSION[MESSAGES_KEY]["shown"] = $shown;
@@ -30,4 +35,10 @@ function setSuccessMessage(string $message): void
 function setSessionToken(string $token): void
 {
     $_SESSION["X-AUTH-TOKEN"] = $token;
+}
+
+if (getMessagesShown())
+{
+    unset($_SESSION[MESSAGES_KEY]);
+    unset($_SESSION[MESSAGES_KEY]["shown"]);
 }

@@ -76,7 +76,7 @@ function updateBug(int $id, array $data): bool
     global $db;
 
     if (null !== validateDataArray($data)) {
-        $_SESSION["error"] = validateDataArray($data);
+        setErrorMessage(validateDataArray($data));
         return false;
     }
 
@@ -88,7 +88,7 @@ function updateBug(int $id, array $data): bool
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
-    $_SESSION["success"] = "Bug #" . $id . " has been updated!";
+    setSuccessMessage("Bug #" . $id . " has been updated!");
 
     header("Location: index.php?p=view&id=" . $id);
 
@@ -104,10 +104,9 @@ function updateBug(int $id, array $data): bool
 function addBug(array $data): bool
 {
     global $db;
-    global $messages;
 
     if (null !== validateDataArray($data)) {
-        $messages["error"] = validateDataArray($data);
+        setErrorMessage(validateDataArray($data));
         return false;
     }
 
@@ -119,7 +118,7 @@ function addBug(array $data): bool
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
-    $_SESSION["success"] = "Bug has been added!";
+    setSuccessMessage("Bug has been added!");
 
     header("Location: index.php");
 
@@ -136,7 +135,7 @@ function removeBug(int $id): void
     global $db;
 
     if (!doesBugExist($id)) {
-        $_SESSION["error"] = "Bug #" . $id . " does not exist.";
+        setErrorMessage("Bug #" . $id . " does not exist.");
         header("Location: index.php");
         return;
     }
@@ -147,12 +146,12 @@ function removeBug(int $id): void
     }
 
     if (!mysqli_stmt_execute($stmt)) {
-        $_SESSION["error"] = "Bug #" . $id . " could not be removed.";
+        setErrorMessage("Bug #" . $id . " could not be removed.");
     }
 
     mysqli_stmt_close($stmt);
 
-    $_SESSION["success"] = "Bug #" . $id . " has been removed.";
+    setSuccessMessage("Bug #" . $id . " has been removed.");
 
     header("Location: index.php");
 }
@@ -174,7 +173,7 @@ function setSolved(int $id): void
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
-    $_SESSION["success"] = "Bug #" . $id . " has been solved.";
+    setSuccessMessage("Bug #" . $id . " has been solved.");
 
     header("Location: index.php");
 }
