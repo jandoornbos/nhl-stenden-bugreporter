@@ -1,5 +1,5 @@
 <?php
-require_once('secrets.php');
+require_once 'secrets.php';
 
 // Constants are defined in includes/secrets.php
 $db = mysqli_connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASS);

@@ -1,5 +1,5 @@
 <?php
-require_once('includes/functions.php');
+require_once 'includes/load.php';
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -31,10 +31,10 @@ require_once('includes/functions.php');
                 echo "</div>";
                 setMessagesShown(true);
             }
-            if (isset($messages["error"]))
+            if (null !== getErrorMessage())
             {
                 echo "<div class=\"alert alert-danger\">";
-                echo $messages["error"];
+                echo getErrorMessage();
                 echo "</div>";
                 setMessagesShown(true);
             }
