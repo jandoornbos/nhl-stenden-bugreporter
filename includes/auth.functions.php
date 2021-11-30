@@ -5,13 +5,47 @@
  *
  * @param string $username The username of the user.
  * @param string $password The password of the user.
+ * @throws Exception When something goes wrong.
  */
 function login(string $username, string $password): void
+{
+    $user = getUserByEmail($username);
+    if (null === $user)
+    {
+        showErrorAndRedirectToLogin("User could not be found.");
+        return;
+    }
+
+    if (!verifyPassword($password, $user["password"]))
+    {
+        showErrorAndRedirectToLogin("Password is incorrect.");
+        return;
+    }
+
+    $hash = createSessionHash();
+    if (!storeSession($hash, $user["id"]))
+    {
+        showErrorAndRedirectToLogin("Could not make a user session.");
+        return;
+    }
+
+    setSessionToken($hash);
+    setSuccessMessage("You are now logged in.");
+    header("Location: index.php");
+}
+
+/**
+ * Get a user from the database based on email address.
+ *
+ * @param string $email The email address to search for.
+ * @return array|null Returns an array with user data when a user is found. Otherwise, it returns null.
+ */
+function getUserByEmail(string $email): ?array
 {
     global $db;
 
     $stmt = mysqli_prepare($db, "SELECT * FROM `user` WHERE `email` = ?");
-    if (!mysqli_stmt_bind_param($stmt, "s", $username)
+    if (!mysqli_stmt_bind_param($stmt, "s", $email)
         || !mysqli_stmt_execute($stmt)
         || !$result = mysqli_stmt_get_result($stmt)) {
         die(mysqli_error($db));
@@ -22,47 +56,61 @@ function login(string $username, string $password): void
     mysqli_stmt_free_result($stmt);
     mysqli_stmt_close($stmt);
 
-    if ($amountOfResults <= 0) {
-        setErrorMessage("User could not be found.");
-        header("Location: index.php?p=login");
-        return;
+    if ($amountOfResults <= 0)
+    {
+        return null;
     }
 
-    $array = mysqli_fetch_assoc($result);
-    if (!password_verify($password, $array["password"])) {
-        setErrorMessage("Password is incorrect.");
-        header("Location: index.php?p=login");
-        return;
-    }
-
-    $hash = createSession($array["id"]);
-    setSessionToken($hash);
-    setSuccessMessage("You are now logged in.");
-    header("Location: index.php");
+    return mysqli_fetch_assoc($result);
 }
 
 /**
- * Create a new session for the user.
+ * Verify a password.
  *
- * @param int $userId
- * @return string|null Returns the session hash for the user.
+ * @param string $password A password.
+ * @param string $otherPassword Another password.
+ * @return bool True when password is correct, false otherwise.
  */
-function createSession(int $userId): ?string
+function verifyPassword(string $password, string $otherPassword): bool
+{
+    return password_verify($password, $otherPassword);
+}
+
+/**
+ * Create a unique session hash.
+ *
+ * @return string A string to use as a session hash.
+ * @throws Exception
+ */
+function createSessionHash(): string
+{
+    return bin2hex(random_bytes(100));
+}
+
+/**
+ * Store a session in the database.
+ *
+ * @param string $hash The hash to store.
+ * @param int $userId The user to link it to.
+ * @return bool True when storing the session was successful, false otherwise.
+ */
+function storeSession(string $hash, int $userId): bool
 {
     global $db;
 
-    try {
-        $sessionHash = bin2hex(random_bytes(100));
-
+    try
+    {
         $stmt = mysqli_prepare($db, "INSERT INTO `session` (`userid`, `sessionhash`) VALUES (?, ?)");
-        if (!mysqli_stmt_bind_param($stmt, "ss", $userId, $sessionHash)
+        if (!mysqli_stmt_bind_param($stmt, "ss", $userId, $hash)
             || !mysqli_stmt_execute($stmt)) {
             die(mysqli_error($db));
         }
 
-        return $sessionHash;
-    } catch (Exception $e) {
-        return null;
+        return true;
+    }
+    catch (Exception $e)
+    {
+        return false;
     }
 }
 
@@ -151,5 +199,16 @@ function register(string $username, string $password): void
         die(mysqli_error($db));
     }
 
+    header("Location: index.php?p=login");
+}
+
+/**
+ * Set a message to be shown on the webpage. Then redirect to the login page.
+ *
+ * @param string $message The message to display.
+ */
+function showErrorAndRedirectToLogin(string $message): void
+{
+    setErrorMessage($message);
     header("Location: index.php?p=login");
 }
