@@ -18,7 +18,7 @@ $view = getView();
     </head>
     <body>
         <nav class="navbar navbar-dark bg-dark">
-            <span class="navbar-brand mb-0 h1">Bugreporter</span>
+            <a href="index.php" class="navbar-brand mb-0 h1">Bugreporter</a>
             <?php if (isUserLoggedIn()): ?>
             <span class="navbar-text">Logged in as <?php echo getLoggedInUser()["email"]; ?>. <a href="index.php?a=logout">Logout</a></span>
             <?php endif; ?>
@@ -49,4 +49,8 @@ $view = getView();
     </body>
 </html>
 <?php
+if (getMessagesShown())
+{
+    unset($_SESSION[MESSAGES_KEY]);
+}
 mysqli_close($db);

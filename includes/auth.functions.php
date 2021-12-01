@@ -13,20 +13,20 @@ function login(string $username, string $password): void
     if (null === $user)
     {
         showErrorAndRedirectToLogin("User could not be found.");
-        return;
+        exit;
     }
 
     if (!verifyPassword($password, $user["password"]))
     {
         showErrorAndRedirectToLogin("Password is incorrect.");
-        return;
+        exit;
     }
 
     $hash = createSessionHash();
     if (!storeSession($hash, $user["id"]))
     {
         showErrorAndRedirectToLogin("Could not make a user session.");
-        return;
+        exit;
     }
 
     setSessionToken($hash);
@@ -151,17 +151,6 @@ function isUserLoggedIn(): bool
 }
 
 /**
- * Put this function on the top of pages that require login.
- */
-function requiresLogin(): void
-{
-    if (!isset($_SESSION["X-AUTH-TOKEN"])) {
-        include("./views/401.php");
-        die();
-    }
-}
-
-/**
  * Log out the user and delete the session from the database.
  */
 function logout(): void
@@ -190,6 +179,21 @@ function logout(): void
 function register(string $username, string $password): void
 {
     global $db;
+
+    $user = getUserByEmail($username);
+    if (null !== $user)
+    {
+        setErrorMessage("This username is already taken.");
+        header("Location: index.php?p=register");
+        exit;
+    }
+
+    if (strlen($username) == 0 || strlen($password) == 0)
+    {
+        setErrorMessage("The username or password is to short.");
+        header("Location: index.php?p=register");
+        exit;
+    }
 
     $password = password_hash($password, PASSWORD_BCRYPT);
 

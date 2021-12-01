@@ -77,7 +77,7 @@ function updateBug(int $id, array $data): bool
 
     if (null !== validateDataArray($data)) {
         setErrorMessage(validateDataArray($data));
-        return false;
+        exit;
     }
 
     $stmt = mysqli_prepare($db, "UPDATE `bug` SET `productName` = ?, `productVersion` = ?, `hardware` = ?, `frequency` = ?, `proposedSolution` = ? WHERE `id` = ?");
@@ -91,23 +91,21 @@ function updateBug(int $id, array $data): bool
     setSuccessMessage("Bug #" . $id . " has been updated!");
 
     header("Location: index.php?p=view&id=" . $id);
-
-    return true;
+    exit;
 }
 
 /**
  * Add a new bug to the system.
  *
  * @param array $data The data for the bug.
- * @return bool Returns false if bug could not be added.
  */
-function addBug(array $data): bool
+function addBug(array $data): void
 {
     global $db;
 
     if (null !== validateDataArray($data)) {
         setErrorMessage(validateDataArray($data));
-        return false;
+        exit;
     }
 
     $stmt = mysqli_prepare($db, "INSERT INTO `bug` (`productName`, `productVersion`, `hardware`, `frequency`, `proposedSolution`) VALUES (?,?,?,?,?)");
@@ -121,8 +119,7 @@ function addBug(array $data): bool
     setSuccessMessage("Bug has been added!");
 
     header("Location: index.php");
-
-    return true;
+    exit;
 }
 
 /**
@@ -154,6 +151,7 @@ function removeBug(int $id): void
     setSuccessMessage("Bug #" . $id . " has been removed.");
 
     header("Location: index.php");
+    exit;
 }
 
 /**
@@ -176,6 +174,7 @@ function setSolved(int $id): void
     setSuccessMessage("Bug #" . $id . " has been solved.");
 
     header("Location: index.php");
+    exit;
 }
 
 /**
