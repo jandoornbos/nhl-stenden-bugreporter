@@ -1,6 +1,4 @@
 <?php
-requiresLogin();
-
 $pageType = "Add";
 $submitAction = "add";
 
