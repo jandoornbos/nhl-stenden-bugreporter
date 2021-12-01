@@ -105,7 +105,7 @@ function addBug(array $data): void
 
     if (null !== validateDataArray($data)) {
         setErrorMessage(validateDataArray($data));
-        exit;
+        return;
     }
 
     $stmt = mysqli_prepare($db, "INSERT INTO `bug` (`productName`, `productVersion`, `hardware`, `frequency`, `proposedSolution`) VALUES (?,?,?,?,?)");

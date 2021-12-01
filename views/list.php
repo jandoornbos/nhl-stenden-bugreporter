@@ -19,7 +19,10 @@
         echo "<td class=\"actions\">";
         echo "<a href=\"?p=view&id=" . $bug["id"] ."\" class=\"btn btn-info btn-sm\"><i class=\"fas fa-eye\"></i></a> ";
         echo "<a href=\"?p=edit&id=" . $bug["id"] ."\" class=\"btn btn-secondary btn-sm\"><i class=\"fas fa-edit\"></i></a> ";
-        echo "<a href=\"?a=solve&id=" . $bug["id"] ."\" class=\"btn btn-success btn-sm\"><i class=\"fas fa-check\"></i></a> ";
+        if ($bug["solved"] == 0)
+        {
+            echo "<a href=\"?a=solve&id=" . $bug["id"] ."\" class=\"btn btn-success btn-sm\"><i class=\"fas fa-check\"></i></a> ";
+        }
         echo "<a href=\"?a=remove&id=" . $bug["id"] . "\" class=\"btn btn-danger btn-sm\"><i class=\"fas fa-trash\"></i></a>";
         echo "</td>";
         echo "</tr>";
