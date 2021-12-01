@@ -6,10 +6,10 @@ if (null === $bug)
     die();
 }
 ?>
-<h2 class="mb-3"><a href="index.php">&leftarrow;</a> Bug bekijken #<?php echo $bug["id"]; ?></h2>
+<h2 class="mb-3"><a href="index.php">&leftarrow;</a> Bug details #<?php echo $bug["id"]; ?></h2>
 <?php if ($bug["solved"] == 1): ?>
-<div class="alert alert-success">
-    Deze bug is opgelost.
+<div class="alert alert-info">
+    This bug has been solved.
 </div>
 <?php endif; ?>
 <div class="card bg-dark text-white p-5">
