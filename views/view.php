@@ -7,6 +7,11 @@ if (null === $bug)
 }
 ?>
 <h2 class="mb-3"><a href="index.php">&leftarrow;</a> Bug bekijken #<?php echo $bug["id"]; ?></h2>
+<?php if ($bug["solved"] == 1): ?>
+<div class="alert alert-success">
+    Deze bug is opgelost.
+</div>
+<?php endif; ?>
 <div class="card bg-dark text-white p-5">
     <div class="row">
         <div class="col-md-12">
@@ -15,9 +20,11 @@ if (null === $bug)
                     <i class="fas fa-ellipsis-h"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="?p=edit&id=<?php echo $bug["id"]; ?>"><i class="fas fa-edit"></i> Edit</a>
                     <a class="dropdown-item" href="?a=remove&id=<?php echo $bug["id"]; ?>"><i class="fas fa-trash"></i> Remove</a>
+                    <?php if ($bug["solved"] == 0): ?>
+                    <a class="dropdown-item" href="?p=edit&id=<?php echo $bug["id"]; ?>"><i class="fas fa-edit"></i> Edit</a>
                     <a class="dropdown-item" href="?a=solve&id=<?php echo $bug["id"]; ?>"><i class="fas fa-check"></i> Solve</a>
+                    <?php endif; ?>
                 </div>
             </div>
             <h3>General information</h3>
