@@ -2,7 +2,7 @@
 
 function getMessagesShown(): bool
 {
-    return isset($_SESSION[MESSAGES_KEY]["shown"]) ?? false;
+    return $_SESSION[MESSAGES_KEY]["shown"] ?? false;
 }
 
 function setMessagesShown(bool $shown): void

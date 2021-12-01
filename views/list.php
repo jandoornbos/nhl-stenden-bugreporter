@@ -1,6 +1,3 @@
-<?php
-requiresLogin();
-?>
 <h2 class="mb-3">Buglist <a href="?p=edit" class="btn btn-success float-right mt-1"><i class="fas fa-plus"></i> Bug toevoegen</a></h2>
 <table class="table table-striped table-hover align-middle">
     <thead class="thead-dark">

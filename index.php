@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/load.php';
+$view = getView();
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -24,10 +25,10 @@ require_once 'includes/load.php';
         </nav>
         <div class="container mt-3">
             <?php
-            if (isset($messages["success"]))
+            if (null !== getSuccessMessage())
             {
                 echo "<div class=\"alert alert-success\">";
-                echo $messages["success"];
+                echo getSuccessMessage();
                 echo "</div>";
                 setMessagesShown(true);
             }
@@ -41,23 +42,7 @@ require_once 'includes/load.php';
             ?>
             <div class="row">
                 <div class="col-md-12">
-                    <?php
-                    if (isset($_GET["p"]))
-                    {
-                        if (file_exists("views/" . $_GET["p"] . ".php"))
-                        {
-                            include("views/" . $_GET["p"] . ".php");
-                        }
-                        else
-                        {
-                            include("views/404.php");
-                        }
-                    }
-                    else
-                    {
-                        include("views/list.php");
-                    }
-                    ?>
+                    <?php echo $view; ?>
                 </div>
             </div>
         </div>
